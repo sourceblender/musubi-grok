@@ -25,13 +25,22 @@ def load_transport(presence: str) -> None:
         if not file_name:
             return
         path = Path(file_name).expanduser()
+        if not hasattr(os, "O_NOFOLLOW"):
+            raise RuntimeConfigError("credential_file_nofollow_unavailable")
+        descriptor = -1
         try:
-            info = path.lstat()
+            descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+            info = os.fstat(descriptor)
             if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:
                 raise RuntimeConfigError("credential_file_permissions_invalid")
-            lines = path.read_text(encoding="utf-8").splitlines()
-        except OSError as exc:
+            with os.fdopen(descriptor, "r", encoding="utf-8") as stream:
+                descriptor = -1
+                lines = stream.read().splitlines()
+        except (OSError, UnicodeError) as exc:
             raise RuntimeConfigError("credential_file_unavailable") from exc
+        finally:
+            if descriptor >= 0:
+                os.close(descriptor)
         found: dict[str, str] = {}
         for line in lines:
             key, sep, value = line.partition("=")
