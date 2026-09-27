@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "musubi-grok": {
+      "command": "${GROK_PLUGIN_ROOT}/scripts/musubi-grok-run",
+      "args": []
+    }
+  }
+}

@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "musubi-grok"
+version = "0.1.0"
+description = "Grok Build plugin for scoped Musubi memory"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "Apache-2.0"}
+authors = [{name = "Eric Mey"}]
+dependencies = ["musubi-harness>=1.4.1,<2"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<9"]
+
+[project.urls]
+Homepage = "https://github.com/sourceblender/musubi-grok"
+Repository = "https://github.com/sourceblender/musubi-grok"
+Issues = "https://github.com/sourceblender/musubi-grok/issues"
+
+[project.scripts]
+musubi-grok-mcp = "musubi_grok.mcp:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/musubi_grok"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

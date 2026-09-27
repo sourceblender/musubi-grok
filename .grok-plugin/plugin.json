@@ -1,0 +1,10 @@
+{
+  "name": "musubi-grok",
+  "version": "0.1.0",
+  "description": "Grok Build adapter for scoped Musubi recall and durable, verified memory writes.",
+  "author": {"name": "Sourceblender", "url": "https://github.com/sourceblender"},
+  "homepage": "https://github.com/sourceblender/musubi-grok",
+  "repository": "https://github.com/sourceblender/musubi-grok",
+  "license": "Apache-2.0",
+  "keywords": ["musubi", "memory", "grok", "mcp"]
+}
