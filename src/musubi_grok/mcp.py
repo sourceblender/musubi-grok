@@ -2,14 +2,25 @@
 
 from __future__ import annotations
 
-from musubi_harness.plugin_mcp import PluginMcpFacade
+import sys
 
+from musubi_harness.plugin_mcp import PluginMcpFacade
+from musubi_harness.plugin_runtime import RuntimeConfigError
+
+from .credentials import load_transport
 from .runtime import plugin_runtime
 
 
 def main() -> int:
+    runtime = plugin_runtime()
+    try:
+        config = runtime.runtime_config()
+        load_transport(config.presence)
+    except RuntimeConfigError as exc:
+        print(f"musubi-grok MCP refused startup: {exc}", file=sys.stderr)
+        return 2
     return PluginMcpFacade(
-        plugin_runtime(),
+        runtime,
         source="grok",
         event_prefix="grok",
         owner_label="grok-mcp",
