@@ -2,8 +2,10 @@
 # Explicit setup step. Never reads or prints Musubi credentials.
 set -eu
 root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-data="${GROK_PLUGIN_DATA:-${MUSUBI_GROK_PLUGIN_DATA:-$HOME/.local/share/musubi-grok}}"
+data="${MUSUBI_GROK_PLUGIN_DATA:-${GROK_PLUGIN_DATA:-$HOME/.local/share/musubi-grok}}"
 mkdir -p "$data"
-uv venv --python 3.12 "$data/venv"
-uv pip install --python "$data/venv/bin/python" "$root"
+if [ ! -x "$data/venv/bin/python" ]; then
+  uv venv --python 3.12 "$data/venv"
+fi
+uv pip install --no-cache --python "$data/venv/bin/python" "$root"
 "$data/venv/bin/python" -c 'import musubi_grok, musubi_harness; print("musubi-grok ready")'

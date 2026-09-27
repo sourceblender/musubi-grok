@@ -2,7 +2,7 @@
 # Run only the environment installed by scripts/setup. No implicit pip install
 # or fallback to another host's adapter during a Grok session.
 set -eu
-data="${GROK_PLUGIN_DATA:-${MUSUBI_GROK_PLUGIN_DATA:-$HOME/.local/share/musubi-grok}}"
+data="${MUSUBI_GROK_PLUGIN_DATA:-${GROK_PLUGIN_DATA:-$HOME/.local/share/musubi-grok}}"
 python="$data/venv/bin/python"
 if [ ! -x "$python" ]; then
   echo 'musubi-grok: not set up; run scripts/setup, then restart Grok' >&2
