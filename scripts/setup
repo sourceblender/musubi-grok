@@ -2,7 +2,7 @@
 # Explicit setup step. Never reads or prints Musubi credentials.
 set -eu
 root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-data="${GROK_PLUGIN_DATA:-${MUSUBI_GROK_PLUGIN_DATA:-$HOME/.local/share/musubi-grok}}"
+data="${MUSUBI_GROK_PLUGIN_DATA:-${GROK_PLUGIN_DATA:-$HOME/.local/share/musubi-grok}}"
 mkdir -p "$data"
 if [ ! -x "$data/venv/bin/python" ]; then
   uv venv --python 3.12 "$data/venv"

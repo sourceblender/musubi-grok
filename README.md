@@ -13,7 +13,7 @@ grok plugin install sourceblender/musubi-grok@v0.1.0
 
 For a local checkout, run `scripts/setup`, then `grok plugin install /absolute/path/to/musubi-grok`. Restart Grok after installation. `grok plugin validate /path/to/musubi-grok` checks the manifest; `grok mcp doctor musubi-grok` checks the server.
 
-The launcher reads its Python environment from `$GROK_PLUGIN_DATA/venv`, or `$MUSUBI_GROK_PLUGIN_DATA/venv`, or `~/.local/share/musubi-grok/venv` in that order. This is the **installation root**, separate from the per-seat `PLUGIN_DATA` outbox root. Set `MUSUBI_GROK_PLUGIN_DATA` for a fixed installation location when the host does not export `GROK_PLUGIN_DATA` to MCP processes. Setup does not read credentials. The launcher pins both `musubi-harness` and `musubi-memory-data` to its own environment, overriding stale fleet-tools paths inherited from a seat launcher.
+The launcher reads its Python environment from `$MUSUBI_GROK_PLUGIN_DATA/venv`, or `$GROK_PLUGIN_DATA/venv`, or `~/.local/share/musubi-grok/venv` in that order. This is the **installation root**, separate from the per-seat `PLUGIN_DATA` outbox root. Set `MUSUBI_GROK_PLUGIN_DATA` for a fixed installation location even when the host also exports `GROK_PLUGIN_DATA`. Setup does not read credentials. The launcher pins both `musubi-harness` and `musubi-memory-data` to its own environment, overriding stale fleet-tools paths inherited from a seat launcher.
 
 ## Seat configuration
 
