@@ -29,7 +29,7 @@ def load_transport(presence: str) -> None:
             raise RuntimeConfigError("credential_file_nofollow_unavailable")
         descriptor = -1
         try:
-            descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+            descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
             info = os.fstat(descriptor)
             if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:
                 raise RuntimeConfigError("credential_file_permissions_invalid")

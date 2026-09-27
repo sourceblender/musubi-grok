@@ -66,6 +66,16 @@ def test_credential_file_refuses_symlink_and_invalid_utf8(monkeypatch, tmp_path:
         load_transport("yua/command-chair")
 
 
+def test_credential_fifo_refuses_without_waiting_for_a_writer(monkeypatch, tmp_path: Path) -> None:
+    fifo = tmp_path / "musubi.pipe"
+    os.mkfifo(fifo, 0o600)
+    monkeypatch.delenv("MUSUBI_API_URL", raising=False)
+    monkeypatch.delenv("MUSUBI_TOKEN", raising=False)
+    monkeypatch.setenv("MUSUBI_GROK_CREDENTIAL_FILE", str(fifo))
+    with pytest.raises(RuntimeConfigError, match="credential_file_permissions_invalid"):
+        load_transport("yua/command-chair")
+
+
 def test_approaching_expiry_is_not_a_startup_refusal(monkeypatch) -> None:
     monkeypatch.setenv("MUSUBI_API_URL", "https://musubi.example.test/v1")
     monkeypatch.setenv("MUSUBI_TOKEN", _test_token("yua/command-chair", exp=int(time.time()) + 7 * 86400))
