@@ -19,14 +19,19 @@ def main() -> int:
     except RuntimeConfigError as exc:
         print(f"musubi-grok MCP refused startup: {exc}", file=sys.stderr)
         return 2
-    return PluginMcpFacade(
-        runtime,
-        source="grok",
-        event_prefix="grok",
-        owner_label="grok-mcp",
-        server_name="musubi-grok",
-        server_version="0.1.0",
-    ).serve()
+    try:
+        facade = PluginMcpFacade(
+            runtime,
+            source="grok",
+            event_prefix="grok",
+            owner_label="grok-mcp",
+            server_name="musubi-grok",
+            server_version="0.1.0",
+        )
+    except ValueError:
+        print("musubi-grok MCP refused startup: harness_outdated_grok_source", file=sys.stderr)
+        return 78
+    return facade.serve()
 
 
 if __name__ == "__main__":

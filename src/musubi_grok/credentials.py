@@ -7,7 +7,7 @@ import stat
 from pathlib import Path
 
 from musubi_harness.plugin_runtime import RuntimeConfigError
-from musubi_harness.tokens import token_presence_problems
+from musubi_harness.tokens import identity_refusal, scope_allows, token_claims, validity_refusal
 
 
 def load_transport(presence: str) -> None:
@@ -44,8 +44,13 @@ def load_transport(presence: str) -> None:
         url, token = found.get("MUSUBI_API_URL", ""), found.get("MUSUBI_TOKEN", "")
         if not url or not token:
             raise RuntimeConfigError("credential_file_incomplete")
-    problems = token_presence_problems(token, presence)
-    if problems:
+    claims = token_claims(token)
+    if claims is not None and (
+        claims.get("sub") != presence
+        or not scope_allows(claims.get("scope"), f"{presence}/episodic", "w")
+        or validity_refusal(claims)
+        or identity_refusal(claims)
+    ):
         raise RuntimeConfigError("transport_token_identity_invalid")
     os.environ["MUSUBI_API_URL"] = url
     os.environ["MUSUBI_TOKEN"] = token

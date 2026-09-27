@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 import base64
+import time
 from pathlib import Path
 
 from musubi_grok.runtime import plugin_runtime
@@ -15,11 +16,14 @@ from musubi_harness.plugin_runtime import RuntimeConfigError
 import pytest
 
 
-def _test_token(presence: str) -> str:
-    def part(value: dict[str, str]) -> str:
+def _test_token(presence: str, *, exp: int | None = None) -> str:
+    def part(value: dict[str, object]) -> str:
         return base64.urlsafe_b64encode(json.dumps(value).encode()).decode().rstrip("=")
 
-    return f"{part({'alg': 'none'})}.{part({'iss': 'https://example.test', 'aud': 'musubi', 'sub': presence, 'presence': presence, 'scope': presence + '/*:rw'})}.sig"
+    claims: dict[str, object] = {'iss': 'https://example.test', 'aud': 'musubi', 'sub': presence, 'presence': presence, 'scope': presence + '/*:rw'}
+    if exp is not None:
+        claims['exp'] = exp
+    return f"{part({'alg': 'none'})}.{part(claims)}.sig"
 
 
 def test_owner_only_credential_file_reads_only_transport(monkeypatch, tmp_path: Path) -> None:
@@ -46,6 +50,12 @@ def test_owner_only_credential_file_reads_only_transport(monkeypatch, tmp_path: 
         load_transport("yua/command-chair")
 
 
+def test_approaching_expiry_is_not_a_startup_refusal(monkeypatch) -> None:
+    monkeypatch.setenv("MUSUBI_API_URL", "https://musubi.example.test/v1")
+    monkeypatch.setenv("MUSUBI_TOKEN", _test_token("yua/command-chair", exp=int(time.time()) + 7 * 86400))
+    load_transport("yua/command-chair")
+
+
 def test_grok_data_root_and_explicit_override(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.delenv("PLUGIN_DATA", raising=False)
     monkeypatch.setenv("GROK_PLUGIN_DATA", str(tmp_path / "grok"))
@@ -56,6 +66,8 @@ def test_grok_data_root_and_explicit_override(monkeypatch, tmp_path: Path) -> No
 
 def test_real_stdio_lists_tools_and_refuses_partial_identity(tmp_path: Path) -> None:
     env = os.environ.copy()
+    for key in ("MUSUBI_API_URL", "MUSUBI_TOKEN", "MUSUBI_GROK_CREDENTIAL_FILE", "GROK_PLUGIN_DATA"):
+        env.pop(key, None)
     env.update(
         PLUGIN_DATA=str(tmp_path),
         MUSUBI_ACTOR="yua",

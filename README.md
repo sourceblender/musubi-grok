@@ -13,7 +13,7 @@ grok plugin install sourceblender/musubi-grok@v0.1.0
 
 For a local checkout, run `scripts/setup`, then `grok plugin install /absolute/path/to/musubi-grok`. Restart Grok after installation. `grok plugin validate /path/to/musubi-grok` checks the manifest; `grok mcp doctor musubi-grok` checks the server.
 
-The launcher reads its Python environment from `$GROK_PLUGIN_DATA/venv`, or `$MUSUBI_GROK_PLUGIN_DATA/venv`, or `~/.local/share/musubi-grok/venv` in that order. Set `MUSUBI_GROK_PLUGIN_DATA` for a fixed setup location when the host does not export `GROK_PLUGIN_DATA` to MCP processes. Setup does not read credentials.
+The launcher reads its Python environment from `$GROK_PLUGIN_DATA/venv`, or `$MUSUBI_GROK_PLUGIN_DATA/venv`, or `~/.local/share/musubi-grok/venv` in that order. This is the **installation root**, separate from the per-seat `PLUGIN_DATA` outbox root. Set `MUSUBI_GROK_PLUGIN_DATA` for a fixed installation location when the host does not export `GROK_PLUGIN_DATA` to MCP processes. Setup does not read credentials. The launcher pins both `musubi-harness` and `musubi-memory-data` to its own environment, overriding stale fleet-tools paths inherited from a seat launcher.
 
 ## Seat configuration
 
@@ -26,7 +26,7 @@ enabled = true
 env = { PLUGIN_DATA = "/private/seat/musubi", MUSUBI_ACTOR = "alice", MUSUBI_PRESENCE = "alice/laptop", MUSUBI_ZONE = "home", MUSUBI_DELIVERY_MODE = "verified" }
 ```
 
-The harness reads `MUSUBI_API_URL` and `MUSUBI_TOKEN` from the MCP process environment when remote access is required. Alternatively, set `MUSUBI_GROK_CREDENTIAL_FILE` to an explicit owner-only (mode 600) dotenv path. The plugin reads **only** those two keys from it, never sources shell code, and refuses a token whose presence claim does not match the configured seat. Do not put the token in a tracked file or in Grok project config. With no `PLUGIN_DATA`, the MCP binding uses `GROK_PLUGIN_DATA` when Grok provides it, otherwise `~/.local/state/musubi-grok`. Identity must be complete: partial or cross actor configuration is refused. The default delivery mode is `shadow`; `verified` attempts remote delivery and exact readback. Do not delete an old outbox until its pending and dead rows have been reviewed.
+The harness reads `MUSUBI_API_URL` and `MUSUBI_TOKEN` from the MCP process environment when remote access is required. Injected environment values take precedence over a file. Alternatively, set `MUSUBI_GROK_CREDENTIAL_FILE` to an explicit owner-only (mode 600) dotenv path. The plugin reads **only** those two keys from it, never sources shell code, and refuses a token whose presence or write scope does not match the configured seat. An approaching expiry is a warning, not a startup refusal. Do not put the token in a tracked file or in Grok project config. With no `PLUGIN_DATA`, the MCP binding uses `GROK_PLUGIN_DATA` when Grok provides it, otherwise `~/.local/state/musubi-grok`. Identity must be complete: partial or cross actor configuration is refused. The default delivery mode is `shadow`; `verified` attempts remote delivery and exact readback. Do not delete an old outbox until its pending and dead rows have been reviewed.
 
 The plugin currently covers deliberate recall and explicit remember. Automatic turn capture is a separate lifecycle feature and is **not** claimed by this release.
 
